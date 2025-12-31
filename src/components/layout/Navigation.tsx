@@ -1,20 +1,19 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { useSmartNavigation } from '@/hooks/useSmartNavigation';
+import { Menu, X } from 'lucide-react';
 
 const DEFAULT_NAVIGATION = {
-  brandName: 'TechFlow',
-  brandHref: '/',
-  navItems: [{ label: 'Home', href: '#hero' }],
+  logo: 'Test Site',
+  logoHref: '#hero',
+  links: [
+    { label: 'Home', href: '#hero' },
+    { label: 'Pricing', href: '#pricing' },
+  ],
   ctaText: 'Get Started',
-  ctaHref: '/start',
-  showCta: true,
-  mobileMenuLabel: 'Open navigation menu',
-  closeMenuLabel: 'Close navigation menu',
+  ctaHref: '#pricing',
 } as const;
 
 type NavigationProps = Partial<typeof DEFAULT_NAVIGATION>;
@@ -24,129 +23,90 @@ export default function Navigation(props: NavigationProps) {
   const navigate = useSmartNavigation();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleNavClick = (href: string) => {
-    navigate(href);
-    setIsOpen(false);
-  };
-
-  const handleBrandClick = () => {
-    navigate(config.brandHref);
-  };
-
-  const handleCtaClick = () => {
-    navigate(config.ctaHref);
-  };
-
   return (
-    <section id="navigation" className="bg-background text-foreground border-b border-border">
-      <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Brand */}
-          <div className="flex-shrink-0">
-            <Button
-              variant="ghost"
-              className="text-xl font-bold text-foreground hover:text-primary p-0 h-auto"
-              onClick={handleBrandClick}
-              data-editable-href="brandHref"
-              data-href={config.brandHref}
-            >
-              <span data-editable="brandName">{config.brandName}</span>
-            </Button>
-          </div>
+          {/* Logo */}
+          <button
+            onClick={() => navigate(config.logoHref)}
+            className="text-xl font-bold text-foreground hover:text-primary transition-colors"
+            data-editable-href="logoHref"
+            data-href={config.logoHref}
+          >
+            <span data-editable="logo">{config.logo}</span>
+          </button>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
-              {config.navItems.map((item, idx) => (
-                <Button
-                  key={idx}
-                  variant="ghost"
-                  className="text-foreground hover:text-primary hover:bg-accent px-3 py-2 text-sm font-medium transition-colors"
-                  onClick={() => handleNavClick(item.href)}
-                  data-editable-href={`navItems[${idx}].href`}
-                  data-href={item.href}
-                >
-                  <span data-editable={`navItems[${idx}].label`}>{item.label}</span>
-                </Button>
-              ))}
-            </div>
+          <div className="hidden md:flex items-center space-x-8">
+            {config.links.map((link, idx) => (
+              <button
+                key={idx}
+                onClick={() => navigate(link.href)}
+                className="text-foreground hover:text-primary transition-colors"
+                data-editable-href={`links[${idx}].href`}
+                data-href={link.href}
+              >
+                <span data-editable={`links[${idx}].label`}>{link.label}</span>
+              </button>
+            ))}
           </div>
 
           {/* Desktop CTA */}
-          {config.showCta && (
-            <div className="hidden md:block">
+          <div className="hidden md:block">
+            <Button
+              onClick={() => navigate(config.ctaHref)}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              data-editable-href="ctaHref"
+              data-href={config.ctaHref}
+            >
+              <span data-editable="ctaText">{config.ctaText}</span>
+            </Button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isOpen && (
+          <div className="md:hidden py-4 border-t border-border">
+            <div className="flex flex-col space-y-4">
+              {config.links.map((link, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    navigate(link.href);
+                    setIsOpen(false);
+                  }}
+                  className="text-left text-foreground hover:text-primary transition-colors"
+                  data-editable-href={`links[${idx}].href`}
+                  data-href={link.href}
+                >
+                  <span data-editable={`links[${idx}].label`}>{link.label}</span>
+                </button>
+              ))}
               <Button
-                className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-                onClick={handleCtaClick}
+                onClick={() => {
+                  navigate(config.ctaHref);
+                  setIsOpen(false);
+                }}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
                 data-editable-href="ctaHref"
                 data-href={config.ctaHref}
               >
                 <span data-editable="ctaText">{config.ctaText}</span>
               </Button>
             </div>
-          )}
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-foreground hover:text-primary hover:bg-accent"
-                  aria-label={config.mobileMenuLabel}
-                >
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="bg-background text-foreground border-border">
-                <div className="flex flex-col space-y-6 mt-8">
-                  {/* Mobile Brand */}
-                  <Button
-                    variant="ghost"
-                    className="text-xl font-bold text-foreground hover:text-primary justify-start p-0 h-auto"
-                    onClick={handleBrandClick}
-                    data-editable-href="brandHref"
-                    data-href={config.brandHref}
-                  >
-                    <span data-editable="brandName">{config.brandName}</span>
-                  </Button>
-
-                  {/* Mobile Navigation Links */}
-                  <div className="flex flex-col space-y-4">
-                    {config.navItems.map((item, idx) => (
-                      <Button
-                        key={idx}
-                        variant="ghost"
-                        className="text-foreground hover:text-primary hover:bg-accent justify-start px-0 py-2 text-base font-medium"
-                        onClick={() => handleNavClick(item.href)}
-                        data-editable-href={`navItems[${idx}].href`}
-                        data-href={item.href}
-                      >
-                        <span data-editable={`navItems[${idx}].label`}>{item.label}</span>
-                      </Button>
-                    ))}
-                  </div>
-
-                  {/* Mobile CTA */}
-                  {config.showCta && (
-                    <div className="pt-4 border-t border-border">
-                      <Button
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 w-full transition-colors"
-                        onClick={handleCtaClick}
-                        data-editable-href="ctaHref"
-                        data-href={config.ctaHref}
-                      >
-                        <span data-editable="ctaText">{config.ctaText}</span>
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
           </div>
-        </div>
-      </nav>
-    </section>
+        )}
+      </div>
+    </nav>
   );
 }
