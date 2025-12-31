@@ -11,6 +11,7 @@ const DEFAULT_NAVIGATION = {
   links: [
     { label: 'Home', href: '#hero' },
     { label: 'Pricing', href: '#pricing' },
+    { label: 'Contact', href: '#contact' },
   ],
   ctaText: 'Get Started',
   ctaHref: '#pricing',
